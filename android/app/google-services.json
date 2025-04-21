@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "61750527799",
+    "firebase_url": "https://protocoldatameter-default-rtdb.firebaseio.com",
+    "project_id": "protocoldatameter",
+    "storage_bucket": "protocoldatameter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61750527799:android:6c49d1d78ce3410f0dbcb2",
+        "android_client_info": {
+          "package_name": "com.anonymous.ProtocolDataMeter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "61750527799-ldpk3mhls90lcce6p1ri6c80of53jut0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnpIRtM9gjd8MANtWbQjGvfsTMsyVRk1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "61750527799-ldpk3mhls90lcce6p1ri6c80of53jut0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

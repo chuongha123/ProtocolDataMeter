@@ -1,14 +1,18 @@
-import WaterMeter from '@/components/WaterMeter';
-import { CLOCK1, onValueChange } from '@/firebaseConfig';
-import { useEffect } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import WaterMeter from "@/components/WaterMeter";
+import { CLOCK1, CLOCK2, onValueChange } from "@/firebaseConfig";
+import { useEffect, useState } from "react";
+import { ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-
+  const [clock1, setClock1] = useState(0);
+  const [clock2, setClock2] = useState(0);
   useEffect(() => {
     onValueChange(CLOCK1, (data) => {
-      console.log("data", data);
+      setClock1(data.value);
+    });
+    onValueChange(CLOCK2, (data) => {
+      setClock2(data.value);
     });
   }, []);
 
@@ -16,13 +20,13 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <ScrollView contentContainerStyle={styles.container}>
         <WaterMeter
-          meterReading="111111"
+          meterReading={clock1.toString()}
           gaugeValues={[6, 8, 3]}
           width={300}
           height={300}
         />
         <WaterMeter
-          meterReading="111111"
+          meterReading={clock2.toString()}
           gaugeValues={[6, 8, 3]}
           width={300}
           height={300}

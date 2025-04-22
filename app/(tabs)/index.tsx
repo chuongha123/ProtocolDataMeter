@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
   const [clock1, setClock1] = useState(0);
   const [clock2, setClock2] = useState(0);
+  
   useEffect(() => {
     onValueChange(CLOCK1, (data) => {
       setClock1(data.value);

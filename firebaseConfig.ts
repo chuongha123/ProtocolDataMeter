@@ -1,9 +1,5 @@
-import {getApp, getApps, initializeApp} from '@react-native-firebase/app';
-import {get, getDatabase, ref, set} from "@react-native-firebase/database";
-
-
-const FIREBASE_URL = "https://fir-auth-article-b6631-default-rtdb.asia-southeast1.firebasedatabase.app/";
-const FIREBASE_AUTH = "AIzaSyAhDeTcy_8vgBCq5hZnF-Wrl0R6nVnRcfg";
+import { initializeApp, getApp, getApps } from '@react-native-firebase/app';
+import { getDatabase, ref, set, onValue, get } from '@react-native-firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCtUIfr4L6VudUOHHxcM47UtcoRrVcxO1U",
@@ -13,53 +9,60 @@ const firebaseConfig = {
   storageBucket: "protocoldatameter.firebasestorage.app",
   messagingSenderId: "61750527799",
   appId: "1:61750527799:web:ff532a5714112ae20dbcb2",
-  measurementId: "G-Q1FLDV1NDT"
+  measurementId: "G-Q1FLDV1NDT",
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Initialize Firebase if it hasn't been initialized yet
+if (getApps().length === 0) {
+  initializeApp(firebaseConfig);
+}
 
-export const database = getDatabase(app);
+// Get the Firebase app instance
+const app = getApp();
+const database = getDatabase(app);
 
-console.log('🔥 Firebase đã khởi tạo:', app.name);
+// Log Firebase initialization
+console.log("🔥 Firebase đã khởi tạo:", app.name);
 
-export const CLOCK1 = 'dongho/dongho_1'
-export const CLOCK2 = 'dongho/dongho_2'
+export const CLOCK1 = "dongho/dongho_1";
+export const CLOCK2 = "dongho/dongho_2";
 
-
-
-export const readData = async () => {
-  const dbRef = ref(database, RANDOM_VALUE_PATH);
-
-  const snapshot = await get(dbRef);
-  if (snapshot.exists()) {
-    console.log('📥 Dữ liệu từ Firebase:', snapshot.val());
-  } else {
-    console.log('❌ Không có dữ liệu trong Firebase.');
+export const readData = async (path: string) => {
+  try {
+    const snapshot = await get(ref(database, path));
+    if (snapshot.exists()) {
+      console.log("📥 Dữ liệu từ Firebase:", snapshot.val());
+      return snapshot.val();
+    } else {
+      console.log("❌ Không có dữ liệu trong Firebase.");
+      return null;
+    }
+  } catch (error) {
+    console.error("🚫 Lỗi khi đọc dữ liệu:", error);
+    return null;
   }
 };
 
 export const writeData = async (jsonName: string, data: any) => {
-  const dbRef = ref(database, jsonName);
-  const randomValue = Math.floor(Math.random() * 100);
-
-  await set(dbRef, data);
-  console.log('✅ Dữ liệu đã được gửi lên Firebase:', randomValue);
+  try {
+    await set(ref(database, jsonName), data);
+    console.log("✅ Dữ liệu đã được gửi lên Firebase:", data);
+    return true;
+  } catch (error) {
+    console.error("🚫 Lỗi khi ghi dữ liệu:", error);
+    return false;
+  }
 };
 
-/**
- * REST API
- */
-// export const fetchData = async () => {
-//   const response = await fetch(`${FIREBASE_URL}/randomValue.json?auth=${FIREBASE_AUTH}`);
-//   return await response.json();
-// };
-//
-// export const sendData = async () => {
-//   const newValue = Math.floor(Math.random() * 100);
-//   const response = await fetch(`${FIREBASE_URL}/randomValue.json?auth=${FIREBASE_AUTH}`, {
-//     method: "PUT",
-//     headers: {"Content-Type": "application/json"},
-//     body: JSON.stringify({value: newValue}),
-//   });
-//   return await response.json();
-// };
+export const onValueChange = (path: string, callback: (data: any) => void) => {
+  const dbRef = ref(database, path);
+  
+  const unsubscribe = onValue(dbRef, (snapshot) => {
+    callback(snapshot.val());
+  }, (error) => {
+    console.error("🚫 Lỗi khi theo dõi dữ liệu:", error);
+  });
+  
+  // Return function to unsubscribe when needed
+  return unsubscribe;
+};

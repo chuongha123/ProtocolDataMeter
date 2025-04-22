@@ -218,7 +218,7 @@ export const WaterMeter: React.FC<WaterMeterProps> = ({
         />
 
         {/* Edge light refraction */}
-        <Path
+        {/* <Path
           d={`M${centerX + radius * 0.8},${centerY} 
               A${radius * 0.8},${radius * 0.8} 0 0,1 ${centerX},${centerY + radius * 0.8}
               A${radius * 0.8},${radius * 0.8} 0 0,1 ${centerX - radius * 0.8},${centerY}`}
@@ -226,7 +226,7 @@ export const WaterMeter: React.FC<WaterMeterProps> = ({
           stroke="white"
           strokeWidth={radius * 0.03}
           opacity={0.08}
-        />
+        /> */}
       </Svg>
     </View>
   );

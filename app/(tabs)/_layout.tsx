@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { DrawerMenu } from '@/components/DrawerMenu';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -25,6 +26,7 @@ export default function TabLayout() {
           },
           default: {},
         }),
+        headerLeft: () => <DrawerMenu />,
       }}>
       <Tabs.Screen
         name="index"

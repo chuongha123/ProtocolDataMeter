@@ -1,6 +1,8 @@
 import { api } from "./axiosInterceptor";
 import { NewWaterMeter, WaterMeter } from "./types/waterMeter";
 
+const API_URL = "/api/water-meters";
+
 export const waterMeterService = {
   getWaterMeter: async (): Promise<WaterMeter> => {
     try {
@@ -13,7 +15,7 @@ export const waterMeterService = {
 
   save: async (waterMeter: NewWaterMeter): Promise<WaterMeter> => {
     try {
-      return await api.post<WaterMeter>("/api/water-meters", waterMeter);
+      return await api.post<WaterMeter>(API_URL, waterMeter);
     } catch (error) {
       console.error("Failed to save water meter data:", error);
       throw error;
@@ -23,7 +25,7 @@ export const waterMeterService = {
   // Additional methods
   update: async (id: string, waterMeter: WaterMeter): Promise<WaterMeter> => {
     try {
-      return await api.put<WaterMeter>(`/water-meter/${id}`, waterMeter);
+      return await api.put<WaterMeter>(`${API_URL}/${id}`, waterMeter);
     } catch (error) {
       console.error(`Failed to update water meter with ID ${id}:`, error);
       throw error;
@@ -32,7 +34,7 @@ export const waterMeterService = {
 
   delete: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/water-meter/${id}`);
+      await api.delete(`${API_URL}/${id}`);
     } catch (error) {
       console.error(`Failed to delete water meter with ID ${id}:`, error);
       throw error;

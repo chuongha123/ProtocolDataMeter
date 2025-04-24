@@ -175,7 +175,9 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    return Promise.reject(apiError);
+    const errorMessage = new Error(apiError.message);
+    Object.assign(errorMessage, apiError);
+    return Promise.reject(errorMessage);
   }
 );
 

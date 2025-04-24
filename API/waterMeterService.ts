@@ -1,5 +1,5 @@
 import { api } from "./axiosInterceptor";
-import { WaterMeter } from "./types/waterMeter";
+import { NewWaterMeter, WaterMeter } from "./types/waterMeter";
 
 export const waterMeterService = {
   getWaterMeter: async (): Promise<WaterMeter> => {
@@ -11,9 +11,9 @@ export const waterMeterService = {
     }
   },
 
-  save: async (waterMeter: WaterMeter): Promise<WaterMeter> => {
+  save: async (waterMeter: NewWaterMeter): Promise<WaterMeter> => {
     try {
-      return await api.post<WaterMeter>("/water-meter", waterMeter);
+      return await api.post<WaterMeter>("/api/water-meters", waterMeter);
     } catch (error) {
       console.error("Failed to save water meter data:", error);
       throw error;

@@ -1,7 +1,10 @@
 export interface WaterMeter {
   id: string;
-  name: string;
-  value: number;
-  createdAt: string;
-  updatedAt: string;
+  meterName: string;
+  cubicMeters: number;
+}
+
+export interface NewWaterMeter {
+  meterName: string;
+  cubicMeters: number;
 }

@@ -1,3 +1,4 @@
+import { waterMeterService } from "@/API/waterMeterService";
 import WaterMeter from "@/components/WaterMeter";
 import { CLOCK1, CLOCK2, onValueChange } from "@/firebaseConfig";
 import { useEffect, useState } from "react";
@@ -10,9 +11,17 @@ export default function HomeScreen() {
   useEffect(() => {
     onValueChange(CLOCK1, (data) => {
       setClock1(data.value);
+      waterMeterService.save({
+        meterName: "Clock 1",
+        cubicMeters: data.value,
+      });
     });
     onValueChange(CLOCK2, (data) => {
       setClock2(data.value);
+      waterMeterService.save({
+        meterName: "Clock 2",
+        cubicMeters: data.value,
+      });
     });
   }, []);
 

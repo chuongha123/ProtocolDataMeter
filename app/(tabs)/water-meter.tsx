@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Button, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import WaterMeter from '@/components/WaterMeter';
+import WaterMeterClock from '@/components/WaterMeterClock';
 
 export default function WaterMeterScreen() {
   const [meterReading, setMeterReading] = useState('000011');
@@ -30,21 +30,21 @@ export default function WaterMeterScreen() {
           <Text style={styles.title}>Đồng Hồ Nước</Text>
           
           <View style={styles.meterContainer}>
-            <WaterMeter 
+            <WaterMeterClock 
               meterReading={meterReading}
               gaugeValues={gaugeValues}
               width={300}
               height={300}
             />
             <View style={styles.meterSpacer} />
-            <WaterMeter 
+            <WaterMeterClock 
               meterReading={meterReading}
               gaugeValues={gaugeValues}
               width={300}
               height={300}
             />
             <View style={styles.meterSpacer} />
-            <WaterMeter 
+            <WaterMeterClock 
               meterReading={meterReading}
               gaugeValues={gaugeValues}
               width={300}

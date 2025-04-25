@@ -63,6 +63,5 @@ export const onValueChange = (path: string, callback: (data: any) => void) => {
     console.error("🚫 Lỗi khi theo dõi dữ liệu:", error);
   });
   
-  // Return function to unsubscribe when needed
   return unsubscribe;
 };

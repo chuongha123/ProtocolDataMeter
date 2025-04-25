@@ -1,8 +1,10 @@
+import { waterMeterService } from '@/API/waterMeterService';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { validateNumberField, validateRequiredField } from '@/utils/validateUtil';
 import { useRouter } from 'expo-router';
-import React, { useState, ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function AddWaterMeterScreen() {
@@ -12,18 +14,17 @@ export default function AddWaterMeterScreen() {
 
     // Form state
     const [formData, setFormData] = useState({
-        serialNumber: '',
-        location: '',
-        installationDate: '',
+        meterName: '',
         initialReading: '',
-        description: ''
+        description: '',
+        firebasePath: ''
     });
 
     // Validation errors state
     const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({
-        serialNumber: '',
-        location: '',
-        initialReading: ''
+        meterName: '',
+        initialReading: '',
+        firebasePath: ''
     });
 
     const updateField = (field: keyof typeof formData, value: string) => {
@@ -34,28 +35,13 @@ export default function AddWaterMeterScreen() {
         }
     };
 
-    // Extract validation logic for each field
-    const validateSerialNumber = (value: string) => {
-        return value.trim() ? '' : 'Vui lòng nhập số serial';
-    };
-
-    const validateLocation = (value: string) => {
-        return value.trim() ? '' : 'Vui lòng nhập vị trí đồng hồ';
-    };
-
-    const validateInitialReading = (value: string) => {
-        if (!value.trim()) return 'Vui lòng nhập chỉ số ban đầu';
-        if (isNaN(Number(value))) return 'Chỉ số phải là số';
-        return '';
-    };
-
     const validateForm = () => {
         const newErrors = {
-            serialNumber: validateSerialNumber(formData.serialNumber),
-            location: validateLocation(formData.location),
-            initialReading: validateInitialReading(formData.initialReading)
+            meterName: validateRequiredField(formData.meterName, "Vui lòng nhập tên đồng hồ"),
+            initialReading: validateNumberField(formData.initialReading, "Vui lòng nhập số"),
+            firebasePath: validateRequiredField(formData.firebasePath, "Vui lòng nhập đường dẫn Firebase")
         };
-        
+
         setErrors(newErrors);
         return !Object.values(newErrors).some(error => error !== '');
     };
@@ -66,6 +52,12 @@ export default function AddWaterMeterScreen() {
         setIsSubmitting(true);
         try {
             console.log('Submitted water meter:', formData);
+            await waterMeterService.save({
+                meterName: formData.meterName,
+                cubicMeters: Number(formData.initialReading),
+                description: formData.description,
+                firebasePath: formData.firebasePath
+            });
             router.back();
         } catch (error) {
             console.error('Failed to add water meter:', error);
@@ -76,14 +68,14 @@ export default function AddWaterMeterScreen() {
 
     // Extract form field rendering
     const renderFormField = (
-        label: string, 
-        field: keyof typeof formData, 
-        placeholder: string, 
+        label: string,
+        field: keyof typeof formData,
+        placeholder: string,
         isRequired = false,
         options = {}
     ): ReactElement => (
         <View style={styles.formGroup}>
-            <ThemedText type="defaultSemiBold">{label}{isRequired ? ' *' : ''}</ThemedText>
+            <ThemedText type="defaultSemiBold">{label} <ThemedText type="defaultSemiBold" style={{ color: isRequired ? 'red' : 'black' }}>*</ThemedText></ThemedText>
             <TextInput
                 style={[
                     styles.input,
@@ -115,10 +107,9 @@ export default function AddWaterMeterScreen() {
                         Thêm đồng hồ nước mới
                     </ThemedText>
 
-                    {renderFormField('Số Serial', 'serialNumber', 'Nhập số serial đồng hồ', true)}
-                    {renderFormField('Vị trí lắp đặt', 'location', 'Nhập vị trí lắp đặt', true)}
-                    {renderFormField('Ngày lắp đặt', 'installationDate', 'DD/MM/YYYY')}
-                    {renderFormField('Chỉ số ban đầu (m³)', 'initialReading', 'Nhập chỉ số ban đầu', true, {keyboardType: 'numeric'})}
+                    {renderFormField('Tên đồng hồ', 'meterName', 'Nhập số serial đồng hồ', true)}
+                    {renderFormField('Chỉ số ban đầu (m³)', 'initialReading', 'Nhập chỉ số ban đầu', true, { keyboardType: 'numeric' })}
+                    {renderFormField('Đường dẫn Firebase', 'firebasePath', 'Nhập đường dẫn Firebase', true)}
 
                     <View style={styles.formGroup}>
                         <ThemedText type="defaultSemiBold">Ghi chú</ThemedText>

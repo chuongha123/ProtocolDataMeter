@@ -1,45 +1,66 @@
+import { WaterMeter } from "@/API/types/waterMeter";
 import { waterMeterService } from "@/API/waterMeterService";
-import WaterMeter from "@/components/WaterMeter";
-import { CLOCK1, CLOCK2, onValueChange } from "@/firebaseConfig";
+import WaterMeterClock from "@/components/WaterMeterClock";
+import { onValueChange } from "@/firebaseConfig";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [clock1, setClock1] = useState(0);
-  const [clock2, setClock2] = useState(0);
+  const [waterMeters, setWaterMeters] = useState<WaterMeter[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    onValueChange(CLOCK1, (data) => {
-      setClock1(data.value);
-      waterMeterService.save({
-        meterName: "Clock 1",
-        cubicMeters: data.value,
-      });
-    });
-    onValueChange(CLOCK2, (data) => {
-      setClock2(data.value);
-      waterMeterService.save({
-        meterName: "Clock 2",
-        cubicMeters: data.value,
-      });
-    });
+    const fetchWaterMeters = async () => {
+      try {
+        setLoading(true);
+        const response = await waterMeterService.getWaterMeters();
+        setWaterMeters(response.waterMeters || []); // Ensure it's always an array
+
+        // Setup Firebase listeners
+        response.waterMeters?.forEach?.(meter => {
+          if (meter.firebasePath) {
+            onValueChange(meter.firebasePath, (data) => {
+              setWaterMeters(prev =>
+                prev.map(m => m.id === meter.id ? { ...m, cubicMeters: data?.value ?? 0 } : m)
+              );
+            });
+          }
+        });
+      } catch (err) {
+        console.error("Failed to fetch water meters:", err);
+        setError("Không thể tải dữ liệu đồng hồ nước");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWaterMeters();
   }, []);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <WaterMeter
-          meterReading={clock1.toString()}
-          gaugeValues={[6, 8, 3]}
-          width={300}
-          height={300}
-        />
-        <WaterMeter
-          meterReading={clock2.toString()}
-          gaugeValues={[6, 8, 3]}
-          width={300}
-          height={300}
-        />
+        {loading ? (
+          <Text>Đang tải...</Text>
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : waterMeters && waterMeters.length > 0 ? (
+          waterMeters.map((meter) => (
+            <WaterMeterClock
+              key={meter.id}
+              meterReading={meter.cubicMeters.toString()}
+              width={300}
+              height={300}
+              gaugeValues={[6, 8, 3]}
+            />
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text>Chưa có đồng hồ nước nào</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -50,9 +71,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 16,
   },
   titleContainer: {
     flexDirection: "row",
@@ -62,6 +83,16 @@ const styles = StyleSheet.create({
   stepContainer: {
     gap: 8,
     marginBottom: 8,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
   reactLogo: {
     height: 178,

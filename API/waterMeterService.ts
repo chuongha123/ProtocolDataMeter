@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { api } from "./axiosInterceptor";
 import { NewWaterMeter, WaterMeter } from "./types/waterMeter";
 
@@ -10,6 +11,15 @@ export const waterMeterService = {
     } catch (error) {
       console.error("Failed to fetch water meter data:", error);
       throw error;
+    }
+  },
+
+  getWaterMeters: async (): Promise<{waterMeters: WaterMeter[]}> => {
+    try {
+      return await api.get<{waterMeters: WaterMeter[]}>(API_URL);
+    } catch (error) {
+      console.error("Failed to fetch water meters:", error);
+      throw error;  
     }
   },
 

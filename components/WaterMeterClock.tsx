@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, G, Path, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Defs, G, Path, RadialGradient, Rect, Stop, Text as SvgText, Filter, FeGaussianBlur, FeOffset, FeComposite, FeMerge, FeMergeNode } from 'react-native-svg';
 
 interface WaterMeterProps {
   meterReading: string; // Digital display reading (e.g., "000011")
@@ -9,7 +9,7 @@ interface WaterMeterProps {
   height?: number;
 }
 
-export const WaterMeter: React.FC<WaterMeterProps> = ({
+export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   meterReading = "000011",
   gaugeValues = [6, 8, 3, 5],
   width = 300,
@@ -92,16 +92,35 @@ export const WaterMeter: React.FC<WaterMeterProps> = ({
     <View style={[styles.container, { width, height }]}>
       <Svg width={width} height={height}>
         {/* Main meter casing */}
-        <Circle cx={centerX} cy={centerY} r={radius} fill="#2f4ba2" stroke="#2f4ba2" strokeWidth={8} />
-
-        {/* Definitions need to come first */}
         <Defs>
           <RadialGradient id="glassGradient" cx="50%" cy="50%" r="50%" fx="25%" fy="25%">
             <Stop offset="0%" stopColor="white" stopOpacity="0.8" />
             <Stop offset="70%" stopColor="#f0f0f0" stopOpacity="0.2" />
             <Stop offset="100%" stopColor="#d0d0d0" stopOpacity="0.5" />
           </RadialGradient>
+          
+          {/* Shadow filter for 3D raised effect */}
+          <Filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <FeOffset dx="0" dy="4" />
+            <FeGaussianBlur stdDeviation="5" result="shadow" />
+            <FeComposite in="shadow" in2="SourceAlpha" operator="out" result="composite" />
+            <FeMerge>
+              <FeMergeNode in="composite" />
+              <FeMergeNode in="SourceGraphic" />
+            </FeMerge>
+          </Filter>
         </Defs>
+
+        {/* Main meter casing with shadow */}
+        <Circle 
+          cx={centerX} 
+          cy={centerY} 
+          r={radius} 
+          fill="#2f4ba2" 
+          stroke="#2f4ba2" 
+          strokeWidth={8} 
+          filter="url(#dropShadow)"
+        />
 
         <Circle
           cx={centerX}
@@ -239,4 +258,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WaterMeter; 
+export default WaterMeterClock; 

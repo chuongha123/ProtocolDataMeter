@@ -10,13 +10,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const [waterMeters, setWaterMeters] = useState<WaterMeter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const unsubscribe = useRef<Unsubscribe[]>([]);
 
   const fetchWaterMeters = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await waterMeterService.getWaterMeters();
       setWaterMeters(response.waterMeters || []); // Ensure it's always an array
 
@@ -32,9 +29,6 @@ export default function HomeScreen() {
       });
     } catch (err) {
       console.error("Failed to fetch water meters:", err);
-      setError("Không thể tải dữ liệu đồng hồ nước");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -77,7 +71,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 16,
   },
   titleContainer: {
     flexDirection: "row",

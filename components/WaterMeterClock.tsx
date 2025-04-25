@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import Svg, { Circle, Defs, G, Path, RadialGradient, Rect, Stop, Text as SvgText, Filter, FeGaussianBlur, FeOffset, FeComposite, FeMerge, FeMergeNode } from 'react-native-svg';
 
 interface WaterMeterProps {
@@ -7,6 +7,7 @@ interface WaterMeterProps {
   gaugeValues: number[]; // Values for the 4 gauge dials (0-9)
   width?: number;
   height?: number;
+  onPress?: () => void; // Navigation callback when meter is pressed
 }
 
 export const WaterMeterClock: React.FC<WaterMeterProps> = ({
@@ -14,6 +15,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   gaugeValues = [6, 8, 3, 5],
   width = 300,
   height = 300,
+  onPress,
 }) => {
   // Ensure meterReading is 6 digits
   const paddedReading = meterReading.padStart(6, '0').substring(0, 6);
@@ -24,7 +26,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   const radius = Math.min(width, height) * 0.45;
   const digitalDisplayWidth = radius * 1.5;
   const digitalDisplayHeight = radius * 0.4;
-
+  
   // Calculate positions for the gauges
   const gaugeRadius = radius * 0.18;
   const gaugePositions = [
@@ -89,7 +91,11 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   };
 
   return (
-    <View style={[styles.container, { width, height }]}>
+    <Pressable 
+      style={[styles.container, { width, height }]}
+      onPress={onPress}
+      android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: radius }}
+    >
       <Svg width={width} height={height}>
         {/* Main meter casing */}
         <Defs>
@@ -196,24 +202,8 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
           H N C
         </SvgText>
 
-        {/* <SvgText
-          x={centerX}
-          y={centerY + radius * 0.05}
-          fontSize={10}
-          textAnchor="middle"
-          fill="#444"
-        >
-          ISO 4064 Class C
-        </SvgText> */}
-
         {/* Gauges */}
         {gaugePositions.map((pos, i) => renderNeedle(pos.x, pos.y, gaugeValues[i], i))}
-
-        {/* Labels for multipliers */}
-        {/* <SvgText x={gaugePositions[0].x} y={gaugePositions[0].y - gaugeRadius - 5} fontSize={8} textAnchor="middle">x0.001</SvgText>
-        <SvgText x={gaugePositions[1].x} y={gaugePositions[1].y - gaugeRadius - 5} fontSize={8} textAnchor="middle">x0.01</SvgText>
-        <SvgText x={gaugePositions[2].x} y={gaugePositions[2].y - gaugeRadius - 5} fontSize={8} textAnchor="middle">x0.1</SvgText>
-        <SvgText x={gaugePositions[3].x} y={gaugePositions[3].y - gaugeRadius - 5} fontSize={8} textAnchor="middle">x0.0001</SvgText> */}
 
         {/* Realistic glass highlight reflections */}
         {/* Main oval highlight */}
@@ -235,19 +225,8 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
           fill="white"
           opacity={0.1}
         />
-
-        {/* Edge light refraction */}
-        {/* <Path
-          d={`M${centerX + radius * 0.8},${centerY} 
-              A${radius * 0.8},${radius * 0.8} 0 0,1 ${centerX},${centerY + radius * 0.8}
-              A${radius * 0.8},${radius * 0.8} 0 0,1 ${centerX - radius * 0.8},${centerY}`}
-          fill="none"
-          stroke="white"
-          strokeWidth={radius * 0.03}
-          opacity={0.08}
-        /> */}
       </Svg>
-    </View>
+    </Pressable>
   );
 };
 
@@ -255,6 +234,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
 });
 

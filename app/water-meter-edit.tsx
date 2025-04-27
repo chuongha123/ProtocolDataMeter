@@ -1,11 +1,11 @@
-import {waterMeterService} from '@/API/waterMeterService';
-import {ThemedText} from '@/components/ThemedText';
-import {ThemedView} from '@/components/ThemedView';
-import {useColorScheme} from '@/hooks/useColorScheme';
-import {validateNumberField, validateRequiredField} from '@/utils/validateUtil';
-import {useLocalSearchParams, useRouter} from 'expo-router';
-import React, {ReactElement, useEffect, useState} from 'react';
-import {KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import { waterMeterService } from '@/API/waterMeterService';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { validateNumberField, validateRequiredField } from '@/utils/validateUtil';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function EditWaterMeterScreen() {
   const colorScheme = useColorScheme() ?? 'light';

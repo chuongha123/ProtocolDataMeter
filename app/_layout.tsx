@@ -7,7 +7,7 @@ import {useColorScheme} from '@/hooks/useColorScheme';
 import {createDrawerNavigator, DrawerNavigationProp} from '@react-navigation/drawer';
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {useFonts} from 'expo-font';
-import {Slot} from 'expo-router';
+import {Slot, Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {StatusBar} from 'expo-status-bar';
 import {useCallback, useEffect} from 'react';
@@ -16,12 +16,18 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AddWaterMeterScreen from './add-water-meter';
 import WaterMeterDetailScreen from "@/app/water-meter-detail";
 import EditWaterMeterScreen from "@/app/water-meter-edit";
+import LoginScreen from './login';
+import RegisterScreen from './register';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {AuthProvider} from '../utils/authContext';
 
 export type DrawerParamList = {
   "(tabs)": undefined;
   "water-meter-detail": { meterId: number };
   "add-water-meter": undefined;
   "water-meter-edit": { meterId: number };
+  "login": undefined;
+  "register": undefined;
 };
 
 export type AppDrawerScreenProps = DrawerNavigationProp<DrawerParamList, '(tabs)'>;
@@ -30,12 +36,18 @@ export type AppDrawerScreenProps = DrawerNavigationProp<DrawerParamList, '(tabs)
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync().then();
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
+  const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    ...FontAwesome.font,
   });
+
+  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
 
   useEffect(() => {
     if (loaded) {
@@ -44,10 +56,10 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return <Slot/>;
+    return null;
   }
 
-  return <RootLayoutNav/>;
+  return <RootLayoutNav />;
 }
 
 function RootLayoutNav() {
@@ -79,46 +91,48 @@ function RootLayoutNav() {
   ), []);
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <SafeAreaProvider>
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"}/>
-        <Drawer.Navigator
-          initialRouteName="(tabs)"
-          screenOptions={({navigation}) => ({
-            headerLeft: () => renderHeaderLeft(navigation),
-            headerRight: () => renderHeaderRight(navigation),
-            drawerStyle: {
-              width: '70%',
-            },
-            headerShown: true,
-            headerTitle: renderHeaderTitle,
-          })}
-          drawerContent={renderDrawerContent}
-        >
-          <Drawer.Screen
-            name="(tabs)"
-            component={Slot}
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <SafeAreaProvider>
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"}/>
+          <Drawer.Navigator
+            initialRouteName="(tabs)"
+            screenOptions={({navigation}) => ({
+              headerLeft: () => renderHeaderLeft(navigation),
+              headerRight: () => renderHeaderRight(navigation),
+              drawerStyle: {
+                width: '70%',
+              },
+              headerShown: true,
+              headerTitle: renderHeaderTitle,
+            })}
+            drawerContent={renderDrawerContent}
           >
-          </Drawer.Screen>
+            <Drawer.Screen
+              name="(tabs)"
+              component={Slot}
+            >
+            </Drawer.Screen>
 
-          <Drawer.Screen
-            name={"add-water-meter"}
-            component={AddWaterMeterScreen}
-          >
-          </Drawer.Screen>
+            <Drawer.Screen
+              name={"add-water-meter"}
+              component={AddWaterMeterScreen}
+            >
+            </Drawer.Screen>
 
-          <Drawer.Screen
-            name={"water-meter-detail"}
-            component={WaterMeterDetailScreen}>
-          </Drawer.Screen>
+            <Drawer.Screen
+              name={"water-meter-detail"}
+              component={WaterMeterDetailScreen}>
+            </Drawer.Screen>
 
-          <Drawer.Screen
-            name={"water-meter-edit"}
-            component={EditWaterMeterScreen}>
-          </Drawer.Screen>
-        </Drawer.Navigator>
-      </SafeAreaProvider>
-    </ThemeProvider>
+            <Drawer.Screen
+              name={"water-meter-edit"}
+              component={EditWaterMeterScreen}>
+            </Drawer.Screen>
+          </Drawer.Navigator>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

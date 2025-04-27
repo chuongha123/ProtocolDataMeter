@@ -27,7 +27,6 @@ export default function WaterMeterDetailScreen() {
       if (meter) {
         setWaterMeter(meter);
         if (meter.firebasePath) {
-          console.log("meter: ", meter.firebasePath);
           unsubscribe.current = onValueChange(meter.firebasePath, (data) => {
             setWaterMeter(prev => {
               if (prev) {

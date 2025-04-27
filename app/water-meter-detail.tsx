@@ -5,15 +5,18 @@ import { ThemedView } from "@/components/ThemedView";
 import WaterMeterClock from "@/components/WaterMeterClock";
 import { onValueChange } from "@/firebaseConfig";
 import { Unsubscribe } from "@react-native-firebase/database";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { AppDrawerScreenProps } from "./_layout";
 
 export default function WaterMeterDetailScreen() {
   const { meterId } = useLocalSearchParams();
+  const navigation = useNavigation<AppDrawerScreenProps>();
   const router = useRouter();
   const [waterMeter, setWaterMeter] = useState<WaterMeter | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const unsubscribe = useRef<Unsubscribe | null>(null);
 
@@ -21,6 +24,12 @@ export default function WaterMeterDetailScreen() {
     if (!meterId) return;
     try {
       setLoading(true);
+      // Clean up existing Firebase listener if any
+      if (unsubscribe.current) {
+        unsubscribe.current();
+        unsubscribe.current = null;
+      }
+      
       const response = await waterMeterService.getWaterMeter(Number(meterId));
       const meter = response.data;
 
@@ -30,7 +39,7 @@ export default function WaterMeterDetailScreen() {
           unsubscribe.current = onValueChange(meter.firebasePath, (data) => {
             setWaterMeter(prev => {
               if (prev) {
-                prev = {...prev, cubicMeters: data?.value ?? 0};
+                prev = { ...prev, cubicMeters: data?.value ?? 0 };
               }
               return prev;
             })
@@ -44,8 +53,14 @@ export default function WaterMeterDetailScreen() {
       setError("Lỗi khi tải dữ liệu đồng hồ nước");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchWaterMeter();
+  }, [fetchWaterMeter, meterId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,9 +89,19 @@ export default function WaterMeterDetailScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#4a90e2"]}
+          tintColor="#4a90e2"
+        />
+      }
+    >
       <ThemedView style={styles.content}>
-        {loading ? (
+        {loading && !refreshing ? (
           <ThemedText style={styles.statusText}>Đang tải...</ThemedText>
         ) : error ? (
           <ThemedText style={[styles.statusText, styles.errorText]}>{error}</ThemedText>
@@ -92,6 +117,7 @@ export default function WaterMeterDetailScreen() {
                 gaugeValues={getRandomGaugeValues()}
                 width={300}
                 height={300}
+                waterMeter={waterMeter}
               />
             </View>
 
@@ -121,7 +147,7 @@ export default function WaterMeterDetailScreen() {
                   <ThemedText>{waterMeter.firebasePath}</ThemedText>
                 </View>
               )}
-
+              
               {waterMeter.description && (
                 <View style={styles.descriptionContainer}>
                   <ThemedText type="defaultSemiBold">Ghi chú:</ThemedText>
@@ -134,9 +160,8 @@ export default function WaterMeterDetailScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.editButton]}
                 onPress={() => {
-                  router.push({
-                    pathname: "/water-meter-edit",
-                    params: { meterId: waterMeter.id }
+                  navigation.navigate("water-meter-edit", {
+                    meterId: waterMeter.id
                   });
                 }}
               >

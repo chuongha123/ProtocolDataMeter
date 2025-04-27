@@ -1,3 +1,4 @@
+import { WaterMeter } from '@/API/types/waterMeter';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Circle, Defs, FeComposite, FeGaussianBlur, FeMerge, FeMergeNode, FeOffset, Filter, G, Path, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
@@ -7,6 +8,7 @@ interface WaterMeterProps {
   gaugeValues: number[]; // Values for the 4 gauge dials (0-9)
   width?: number;
   height?: number;
+  waterMeter?: WaterMeter;
   onPress?: () => void; // Navigation callback when meter is pressed
 }
 
@@ -15,10 +17,11 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   gaugeValues = [6, 8, 3, 5],
   width = 300,
   height = 300,
+  waterMeter,
   onPress,
 }) => {
   // Ensure meterReading is 6 digits
-  const paddedReading = meterReading.padStart(6, '0').substring(0, 6);
+  const paddedReading = waterMeter?.cubicMeters.toString().padStart(6, '0').substring(0, 6) ?? "000000";
 
   // Calculate sizes based on width/height
   const centerX = width / 2;
@@ -198,7 +201,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
           textAnchor="middle"
           fill="#d32f2f"
         >
-          H N C
+          {waterMeter?.meterName}
         </SvgText>
 
         {/* Gauges */}

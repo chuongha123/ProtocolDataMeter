@@ -32,7 +32,7 @@ export const waterMeterService = {
   },
 
   // Additional methods
-  update: async (id: string, waterMeter: WaterMeter): Promise<WaterMeter> => {
+  update: async (id: number, waterMeter: WaterMeter): Promise<WaterMeter> => {
     try {
       return await api.put<WaterMeter>(`${API_URL}/${id}`, waterMeter);
     } catch (error) {

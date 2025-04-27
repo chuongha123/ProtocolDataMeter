@@ -85,8 +85,8 @@ export default function EditWaterMeterScreen() {
 
     setIsSubmitting(true);
     try {
-      await waterMeterService.save({
-        // id: Number(meterId),
+      await waterMeterService.update(Number(meterId), {
+        id: Number(meterId),
         meterName: formData.meterName,
         cubicMeters: Number(formData.cubicMeters),
         description: formData.description,

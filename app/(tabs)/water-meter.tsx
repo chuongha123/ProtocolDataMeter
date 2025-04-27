@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Button, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, View, Text, Button, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaterMeterClock from '@/components/WaterMeterClock';
 
 export default function WaterMeterScreen() {
   const [meterReading, setMeterReading] = useState('000011');
   const [gaugeValues, setGaugeValues] = useState([6, 8, 3]);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Update meter reading randomly to simulate usage
   const updateReading = () => {
@@ -23,9 +24,29 @@ export default function WaterMeterScreen() {
     ]);
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Simulate a network request
+    setTimeout(() => {
+      updateReading();
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollViewContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#2196F3"]}
+            tintColor="#2196F3"
+          />
+        }
+      >
         <View style={styles.container}>
           <Text style={styles.title}>Đồng Hồ Nước</Text>
           

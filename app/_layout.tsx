@@ -19,9 +19,9 @@ import EditWaterMeterScreen from "@/app/water-meter-edit";
 
 export type DrawerParamList = {
   "(tabs)": undefined;
-  "water-meter-detail": { meterId: string };
+  "water-meter-detail": { meterId: number };
   "add-water-meter": undefined;
-  "water-meter-edit": { meterId: string };
+  "water-meter-edit": { meterId: number };
 };
 
 export type AppDrawerScreenProps = DrawerNavigationProp<DrawerParamList, '(tabs)'>;

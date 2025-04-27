@@ -1,25 +1,24 @@
-import { AxiosResponse } from "axios";
-import { api } from "./axiosInterceptor";
-import { NewWaterMeter, WaterMeter } from "./types/waterMeter";
+import {api} from "./axiosInterceptor";
+import {NewWaterMeter, WaterMeter} from "./types/waterMeter";
 
 const API_URL = "/api/water-meters";
 
 export const waterMeterService = {
-  getWaterMeter: async (): Promise<WaterMeter> => {
+  getWaterMeter: async (id: number): Promise<{ data: WaterMeter }> => {
     try {
-      return await api.get<WaterMeter>("/water-meter");
+      return await api.get<{ data: WaterMeter }>(`${API_URL}/${id}`);
     } catch (error) {
       console.error("Failed to fetch water meter data:", error);
       throw error;
     }
   },
 
-  getWaterMeters: async (): Promise<{waterMeters: WaterMeter[]}> => {
+  getWaterMeters: async (): Promise<{ data: WaterMeter[] }> => {
     try {
-      return await api.get<{waterMeters: WaterMeter[]}>(API_URL);
+      return await api.get<{ data: WaterMeter[] }>(API_URL);
     } catch (error) {
       console.error("Failed to fetch water meters:", error);
-      throw error;  
+      throw error;
     }
   },
 

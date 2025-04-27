@@ -4,6 +4,8 @@ export interface WaterMeter {
   cubicMeters: number;
   description?: string;
   firebasePath?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface NewWaterMeter {

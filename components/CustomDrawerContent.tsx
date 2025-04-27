@@ -1,11 +1,10 @@
-import { useRouter } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from './ThemedText';
 
 const MENU_ITEMS = [
-    { title: 'Tất cả đồng hồ nước', route: '/water-meter' },
-    { title: 'Thêm đồng hồ nước', route: '/add-water-meter' },
+    { title: 'Tất cả đồng hồ nước', route: '(tabs)' },
+    { title: 'Thêm đồng hồ nước', route: 'add-water-meter' },
 ];
 
 type CustomDrawerContentProps = {
@@ -13,8 +12,6 @@ type CustomDrawerContentProps = {
 };
 
 export function CustomDrawerContent({ navigation }: Readonly<CustomDrawerContentProps>) {
-    const router = useRouter();
-
     return (
         <View style={styles.drawerContent}>
             <View style={styles.drawerHeader}>
@@ -28,7 +25,7 @@ export function CustomDrawerContent({ navigation }: Readonly<CustomDrawerContent
                         style={styles.menuItem}
                         onPress={() => {
                             navigation.closeDrawer();
-                            router.push(item.route as any);
+                            navigation.navigate(item.route);
                         }}
                     >
                         <ThemedText type="defaultSemiBold">{item.title}</ThemedText>

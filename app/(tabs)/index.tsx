@@ -1,28 +1,32 @@
-import { WaterMeter } from "@/API/types/waterMeter";
-import { waterMeterService } from "@/API/waterMeterService";
+import {WaterMeter} from "@/API/types/waterMeter";
+import {waterMeterService} from "@/API/waterMeterService";
 import WaterMeterClock from "@/components/WaterMeterClock";
-import { onValueChange } from "@/firebaseConfig";
-import { Unsubscribe } from "@react-native-firebase/database";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {onValueChange} from "@/firebaseConfig";
+import {Unsubscribe} from "@react-native-firebase/database";
+import {useFocusEffect} from "expo-router";
+import {useCallback, useRef, useState} from "react";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {useNavigation} from "@react-navigation/native";
+import {AppDrawerScreenProps} from "@/app/_layout";
 
 export default function HomeScreen() {
+  const navigation = useNavigation<AppDrawerScreenProps>();
   const [waterMeters, setWaterMeters] = useState<WaterMeter[]>([]);
   const unsubscribe = useRef<Unsubscribe[]>([]);
 
   const fetchWaterMeters = useCallback(async () => {
     try {
       const response = await waterMeterService.getWaterMeters();
-      setWaterMeters(response.waterMeters || []); // Ensure it's always an array
+      const waterMeters = response.data || [];
+      setWaterMeters(waterMeters); // Ensure it's always an array
 
       // Setup Firebase listeners
-      response.waterMeters?.forEach?.(meter => {
+      waterMeters.forEach?.(meter => {
         if (meter.firebasePath) {
           unsubscribe.current.push(onValueChange(meter.firebasePath, (data) => {
             setWaterMeters(prev =>
-              prev.map(m => m.id === meter.id ? { ...m, cubicMeters: data?.value ?? 0 } : m)
+              prev.map(m => m.id === meter.id ? {...m, cubicMeters: data?.value ?? 0} : m)
             );
           }));
         }
@@ -32,9 +36,14 @@ export default function HomeScreen() {
     }
   }, []);
 
+  const handleMeterPress = (meter: WaterMeter) => {
+    console.log("handleMeterPress", meter);
+    navigation.navigate("water-meter-detail", {meterId: meter.id.toString()});
+  };
+
   useFocusEffect(
     useCallback(() => {
-      fetchWaterMeters();
+      fetchWaterMeters().then();
       return () => {
         unsubscribe.current.forEach(unsub => unsub());
       };
@@ -52,6 +61,7 @@ export default function HomeScreen() {
               width={300}
               height={300}
               gaugeValues={[6, 8, 3]}
+              onPress={() => handleMeterPress(meter)}
             />
           ))
         ) : (

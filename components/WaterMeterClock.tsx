@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Pressable } from 'react-native';
-import Svg, { Circle, Defs, G, Path, RadialGradient, Rect, Stop, Text as SvgText, Filter, FeGaussianBlur, FeOffset, FeComposite, FeMerge, FeMergeNode } from 'react-native-svg';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Svg, { Circle, Defs, FeComposite, FeGaussianBlur, FeMerge, FeMergeNode, FeOffset, Filter, G, Path, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
 interface WaterMeterProps {
   meterReading: string; // Digital display reading (e.g., "000011")
@@ -26,7 +26,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   const radius = Math.min(width, height) * 0.45;
   const digitalDisplayWidth = radius * 1.5;
   const digitalDisplayHeight = radius * 0.4;
-  
+
   // Calculate positions for the gauges
   const gaugeRadius = radius * 0.18;
   const gaugePositions = [
@@ -91,10 +91,9 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
   };
 
   return (
-    <Pressable 
+    <TouchableOpacity
       style={[styles.container, { width, height }]}
       onPress={onPress}
-      android_ripple={{ color: 'rgba(0, 0, 0, 0.1)', radius: radius }}
     >
       <Svg width={width} height={height}>
         {/* Main meter casing */}
@@ -104,7 +103,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
             <Stop offset="70%" stopColor="#f0f0f0" stopOpacity="0.2" />
             <Stop offset="100%" stopColor="#d0d0d0" stopOpacity="0.5" />
           </RadialGradient>
-          
+
           {/* Shadow filter for 3D raised effect */}
           <Filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
             <FeOffset dx="0" dy="4" />
@@ -118,13 +117,13 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
         </Defs>
 
         {/* Main meter casing with shadow */}
-        <Circle 
-          cx={centerX} 
-          cy={centerY} 
-          r={radius} 
-          fill="#2f4ba2" 
-          stroke="#2f4ba2" 
-          strokeWidth={8} 
+        <Circle
+          cx={centerX}
+          cy={centerY}
+          r={radius}
+          fill="#2f4ba2"
+          stroke="#2f4ba2"
+          strokeWidth={8}
           filter="url(#dropShadow)"
         />
 
@@ -226,7 +225,7 @@ export const WaterMeterClock: React.FC<WaterMeterProps> = ({
           opacity={0.1}
         />
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 

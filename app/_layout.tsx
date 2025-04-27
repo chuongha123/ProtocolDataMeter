@@ -15,11 +15,13 @@ import {Button, Text, TextStyle, View, ViewStyle} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AddWaterMeterScreen from './add-water-meter';
 import WaterMeterDetailScreen from "@/app/water-meter-detail";
+import EditWaterMeterScreen from "@/app/water-meter-edit";
 
 export type DrawerParamList = {
   "(tabs)": undefined;
   "water-meter-detail": { meterId: string };
-  "add-water-meter": undefined
+  "add-water-meter": undefined;
+  "water-meter-edit": { meterId: string };
 };
 
 export type AppDrawerScreenProps = DrawerNavigationProp<DrawerParamList, '(tabs)'>;
@@ -108,6 +110,11 @@ function RootLayoutNav() {
           <Drawer.Screen
             name={"water-meter-detail"}
             component={WaterMeterDetailScreen}>
+          </Drawer.Screen>
+
+          <Drawer.Screen
+            name={"water-meter-edit"}
+            component={EditWaterMeterScreen}>
           </Drawer.Screen>
         </Drawer.Navigator>
       </SafeAreaProvider>

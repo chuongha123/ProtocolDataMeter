@@ -1,18 +1,21 @@
-import {WaterMeter} from "@/API/types/waterMeter";
-import {waterMeterService} from "@/API/waterMeterService";
-import {ThemedText} from "@/components/ThemedText";
-import {ThemedView} from "@/components/ThemedView";
+import { WaterMeter } from "@/API/types/waterMeter";
+import { waterMeterService } from "@/API/waterMeterService";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 import WaterMeterClock from "@/components/WaterMeterClock";
-import {useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
-import React, {useCallback, useState} from "react";
-import {ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
+import { onValueChange } from "@/firebaseConfig";
+import { Unsubscribe } from "@react-native-firebase/database";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useRef, useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 export default function WaterMeterDetailScreen() {
-  const {meterId} = useLocalSearchParams();
+  const { meterId } = useLocalSearchParams();
   const router = useRouter();
   const [waterMeter, setWaterMeter] = useState<WaterMeter | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const unsubscribe = useRef<Unsubscribe | null>(null);
 
   const fetchWaterMeter = async () => {
     if (!meterId) return;
@@ -23,6 +26,17 @@ export default function WaterMeterDetailScreen() {
 
       if (meter) {
         setWaterMeter(meter);
+        if (meter.firebasePath) {
+          console.log("meter: ", meter.firebasePath);
+          unsubscribe.current = onValueChange(meter.firebasePath, (data) => {
+            setWaterMeter(prev => {
+              if (prev) {
+                prev = {...prev, cubicMeters: data?.value ?? 0};
+              }
+              return prev;
+            })
+          })
+        }
       } else {
         setError("Không tìm thấy đồng hồ nước");
       }
@@ -36,7 +50,12 @@ export default function WaterMeterDetailScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchWaterMeter();
+      fetchWaterMeter().then();
+      return () => {
+        if (unsubscribe.current) {
+          unsubscribe.current();
+        }
+      };
     }, [meterId])
   );
 
@@ -116,8 +135,10 @@ export default function WaterMeterDetailScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.editButton]}
                 onPress={() => {
-                  // Navigate to edit page (to be implemented)
-                  console.log("Edit water meter with ID:", waterMeter.id);
+                  router.push({
+                    pathname: "/water-meter-edit",
+                    params: { meterId: waterMeter.id }
+                  });
                 }}
               >
                 <ThemedText type="defaultSemiBold" style={styles.buttonText}>

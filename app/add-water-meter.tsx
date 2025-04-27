@@ -223,6 +223,6 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     buttonText: {
-        color: 'white',
+        color: 'black',
     },
 });

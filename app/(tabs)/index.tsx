@@ -37,7 +37,6 @@ export default function HomeScreen() {
   }, []);
 
   const handleMeterPress = (meter: WaterMeter) => {
-    console.log("handleMeterPress", meter);
     navigation.navigate("water-meter-detail", {meterId: meter.id.toString()});
   };
 

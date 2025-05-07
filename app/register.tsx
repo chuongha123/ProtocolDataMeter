@@ -2,41 +2,68 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import { ThemedText } from '../components/ThemedText';
 import { ThemedView } from '../components/ThemedView';
+import { useAuth } from '../utils/authContext';
+
+// Định nghĩa schema validation
+const RegisterSchema = Yup.object().shape({
+  username: Yup.string()
+    .required('Vui lòng nhập tên đăng nhập'),
+  email: Yup.string()
+    .email('Email không hợp lệ')
+    .required('Vui lòng nhập email'),
+  password: Yup.string()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .required('Vui lòng nhập mật khẩu'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'Mật khẩu xác nhận không khớp')
+    .required('Vui lòng xác nhận mật khẩu'),
+});
+
+// Định nghĩa interface cho form values
+interface RegisterFormValues {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function RegisterScreen() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const router = useRouter();
+  const { login } = useAuth();
 
-  const handleRegister = () => {
-    // This function will be implemented later to call the API
-    if (!username || !email || !password || !confirmPassword) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
-      return;
+  // Giá trị ban đầu
+  const initialValues: RegisterFormValues = {
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  };
+
+  // Xử lý đăng ký
+  const handleRegister = async (values: RegisterFormValues, { setSubmitting }: any) => {
+    try {
+      console.log('Register with:', { username: values.username, email: values.email, password: values.password });
+      
+      // Mô phỏng đăng ký thành công và tự động đăng nhập
+      const mockToken = 'mock-auth-token-123';
+      const mockUserData = { id: '1', username: values.username, email: values.email };
+      
+      // Store the auth token and user data
+      await login(mockToken, mockUserData);
+      
+      // Navigation is handled in the login function of authContext
+    } catch (error) {
+      Alert.alert('Lỗi', error instanceof Error ? error.message : 'Đăng ký thất bại');
+    } finally {
+      setSubmitting(false);
     }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp');
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Alert.alert('Lỗi', 'Email không hợp lệ');
-      return;
-    }
-
-    // Placeholder for API call
-    console.log('Register with:', { username, email, password });
   };
 
   return (
@@ -58,80 +85,126 @@ export default function RegisterScreen() {
 
           <ThemedText style={styles.title}>Đăng Ký</ThemedText>
 
-          <ThemedView style={styles.inputContainer}>
-            <FontAwesome name="user" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Tên đăng nhập"
-              placeholderTextColor="#A0A0A0"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-            />
-          </ThemedView>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={RegisterSchema}
+            onSubmit={handleRegister}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              isSubmitting
+            }) => (
+              <>
+                <ThemedView style={styles.inputContainer}>
+                  <FontAwesome name="user" size={20} color="#007AFF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Tên đăng nhập"
+                    placeholderTextColor="#A0A0A0"
+                    value={values.username}
+                    onChangeText={handleChange('username')}
+                    onBlur={handleBlur('username')}
+                    autoCapitalize="none"
+                    editable={!isSubmitting}
+                  />
+                </ThemedView>
+                {touched.username && errors.username && (
+                  <ThemedText style={styles.errorText}>{errors.username}</ThemedText>
+                )}
 
-          <ThemedView style={styles.inputContainer}>
-            <FontAwesome name="envelope" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#A0A0A0"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </ThemedView>
+                <ThemedView style={styles.inputContainer}>
+                  <FontAwesome name="envelope" size={20} color="#007AFF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#A0A0A0"
+                    value={values.email}
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    editable={!isSubmitting}
+                  />
+                </ThemedView>
+                {touched.email && errors.email && (
+                  <ThemedText style={styles.errorText}>{errors.email}</ThemedText>
+                )}
 
-          <ThemedView style={styles.inputContainer}>
-            <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Mật khẩu"
-              placeholderTextColor="#A0A0A0"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <FontAwesome
-                name={showPassword ? "eye-slash" : "eye"}
-                size={20}
-                color="#A0A0A0"
-              />
-            </TouchableOpacity>
-          </ThemedView>
+                <ThemedView style={styles.inputContainer}>
+                  <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Mật khẩu"
+                    placeholderTextColor="#A0A0A0"
+                    value={values.password}
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    editable={!isSubmitting}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeIcon}
+                    disabled={isSubmitting}
+                  >
+                    <FontAwesome
+                      name={showPassword ? "eye-slash" : "eye"}
+                      size={20}
+                      color="#A0A0A0"
+                    />
+                  </TouchableOpacity>
+                </ThemedView>
+                {touched.password && errors.password && (
+                  <ThemedText style={styles.errorText}>{errors.password}</ThemedText>
+                )}
 
-          <ThemedView style={styles.inputContainer}>
-            <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Xác nhận mật khẩu"
-              placeholderTextColor="#A0A0A0"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.eyeIcon}
-            >
-              <FontAwesome
-                name={showConfirmPassword ? "eye-slash" : "eye"}
-                size={20}
-                color="#A0A0A0"
-              />
-            </TouchableOpacity>
-          </ThemedView>
+                <ThemedView style={styles.inputContainer}>
+                  <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Xác nhận mật khẩu"
+                    placeholderTextColor="#A0A0A0"
+                    value={values.confirmPassword}
+                    onChangeText={handleChange('confirmPassword')}
+                    onBlur={handleBlur('confirmPassword')}
+                    secureTextEntry={!showConfirmPassword}
+                    autoCapitalize="none"
+                    editable={!isSubmitting}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.eyeIcon}
+                    disabled={isSubmitting}
+                  >
+                    <FontAwesome
+                      name={showConfirmPassword ? "eye-slash" : "eye"}
+                      size={20}
+                      color="#A0A0A0"
+                    />
+                  </TouchableOpacity>
+                </ThemedView>
+                {touched.confirmPassword && errors.confirmPassword && (
+                  <ThemedText style={styles.errorText}>{errors.confirmPassword}</ThemedText>
+                )}
 
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <ThemedText style={styles.registerButtonText}>Đăng Ký</ThemedText>
-          </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.registerButton, isSubmitting && styles.registerButtonDisabled]}
+                  onPress={() => handleSubmit()}
+                  disabled={isSubmitting}
+                >
+                  <ThemedText style={styles.registerButtonText}>
+                    {isSubmitting ? 'Đang đăng ký...' : 'Đăng Ký'}
+                  </ThemedText>
+                </TouchableOpacity>
+              </>
+            )}
+          </Formik>
 
           <ThemedView style={styles.loginContainer}>
             <ThemedText style={styles.loginText}>Đã có tài khoản? </ThemedText>
@@ -179,7 +252,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 8,
     height: 55,
   },
   inputIcon: {
@@ -193,6 +266,12 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 12,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+  },
   registerButton: {
     width: '100%',
     backgroundColor: '#007AFF',
@@ -202,6 +281,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
     marginBottom: 20,
+  },
+  registerButtonDisabled: {
+    backgroundColor: '#A0A0A0',
   },
   registerButtonText: {
     color: 'white',

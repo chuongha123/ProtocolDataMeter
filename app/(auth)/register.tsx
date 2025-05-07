@@ -40,30 +40,11 @@ export default function RegisterScreen() {
     setIsLoading(true);
     
     try {
-      // This is where you would call your API
-      // const response = await fetch('your-register-api-endpoint', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ username, email, password }),
-      // });
-      
-      // const data = await response.json();
-      
-      // if (!response.ok) {
-      //   throw new Error(data.message || 'Đăng ký thất bại');
-      // }
-      
-      // For now, we'll simulate a successful registration with a mock token
-      // Replace this with your actual API integration later
       const mockToken = 'mock-auth-token-123';
       const mockUserData = { id: '1', username, email };
       
       // Store the auth token and user data
       await login(mockToken, mockUserData);
-      
-      // Navigate to the main app
       router.replace('/(tabs)');
     } catch (error) {
       Alert.alert('Lỗi', error instanceof Error ? error.message : 'Đăng ký thất bại');

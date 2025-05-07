@@ -3,9 +3,10 @@ import { waterMeterService } from "@/API/waterMeterService";
 import { AppDrawerScreenProps } from "@/app/_layout";
 import WaterMeterClock from "@/components/WaterMeterClock";
 import { onValueChange } from "@/firebaseConfig";
+import { useAuth } from "@/utils/authContext";
 import { Unsubscribe } from "@react-native-firebase/database";
 import { useNavigation } from "@react-navigation/native";
-import { useFocusEffect } from "expo-router";
+import { Redirect, useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +17,18 @@ export default function HomeScreen() {
   const [waterMeters, setWaterMeters] = useState<WaterMeter[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const { authToken, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#2196F3" />
+    </View>
+  }
+
+  if (!authToken) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
   const fetchWaterMeters = useCallback(async () => {
     try {

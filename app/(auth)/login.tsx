@@ -23,14 +23,14 @@ export default function LoginScreen() {
     }
 
     setIsLoading(true);
-    
+
     try {
       const mockToken = 'mock-auth-token-123';
       const mockUserData = { id: '1', username, email: 'user@example.com' };
-      
+
       // Store the auth token and user data
       await login(mockToken, mockUserData);
-      
+
       // Navigate to the main app
       router.replace('/(tabs)');
     } catch (error) {
@@ -38,6 +38,11 @@ export default function LoginScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRegisterPress = () => {
+    console.log('handleRegisterPress');
+    router.navigate('/(auth)/register');
   };
 
   return (
@@ -93,8 +98,8 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </ThemedView>
 
-        <TouchableOpacity 
-          style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+        <TouchableOpacity
+          style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
           onPress={handleLogin}
           disabled={isLoading}
         >
@@ -105,7 +110,7 @@ export default function LoginScreen() {
 
         <ThemedView style={styles.registerContainer}>
           <ThemedText style={styles.registerText}>Chưa có tài khoản? </ThemedText>
-          <Link href="/(auth)/register" asChild>
+          <Link href="/register" asChild>
             <TouchableOpacity disabled={isLoading}>
               <ThemedText style={styles.registerLink}>Đăng ký</ThemedText>
             </TouchableOpacity>
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
+    lineHeight: 40,
   },
   inputContainer: {
     width: '100%',

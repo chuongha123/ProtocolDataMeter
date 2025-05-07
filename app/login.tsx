@@ -2,26 +2,53 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import { ThemedText } from '../components/ThemedText';
 import { ThemedView } from '../components/ThemedView';
+import { useAuth } from '../utils/authContext';
+
+// Định nghĩa schema validation
+const LoginSchema = Yup.object().shape({
+  username: Yup.string()
+    .required('Vui lòng nhập tên đăng nhập'),
+  password: Yup.string()
+    .required('Vui lòng nhập mật khẩu'),
+});
+
+// Định nghĩa interface cho form values
+interface LoginFormValues {
+  username: string;
+  password: string;
+}
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+  const { login } = useAuth();
 
-  const handleLogin = () => {
-    // This function will be implemented later to call the API
-    if (!username || !password) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
-      return;
+  // Initial values
+  const initialValues: LoginFormValues = {
+    username: '',
+    password: '',
+  };
+
+  // Handle login
+  const handleLogin = async (values: LoginFormValues, { setSubmitting }: any) => {
+    try {
+      const mockToken = 'mock-auth-token-123';
+      const mockUserData = { id: '1', username: values.username, email: 'user@example.com' };
+
+      // Store the auth token and user data
+      await login(mockToken, mockUserData);
+
+      // Navigation is handled in the login function of authContext
+    } catch (error) {
+      Alert.alert('Lỗi', error instanceof Error ? error.message : 'Đăng nhập thất bại');
+    } finally {
+      setSubmitting(false);
     }
-
-    // Placeholder for API call
-    console.log('Login with:', { username, password });
   };
 
   return (
@@ -39,44 +66,79 @@ export default function LoginScreen() {
 
         <ThemedText style={styles.title}>Đăng Nhập</ThemedText>
 
-        <ThemedView style={styles.inputContainer}>
-          <FontAwesome name="user" size={20} color="#007AFF" style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Tên đăng nhập"
-            placeholderTextColor="#A0A0A0"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-          />
-        </ThemedView>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={LoginSchema}
+          onSubmit={handleLogin}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+            isSubmitting
+          }) => (
+            <>
+              <ThemedView style={styles.inputContainer}>
+                <FontAwesome name="user" size={20} color="#007AFF" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Tên đăng nhập"
+                  placeholderTextColor="#A0A0A0"
+                  value={values.username}
+                  onChangeText={handleChange('username')}
+                  onBlur={handleBlur('username')}
+                  autoCapitalize="none"
+                  editable={!isSubmitting}
+                />
+              </ThemedView>
+              {touched.username && errors.username && (
+                <ThemedText style={styles.errorText}>{errors.username}</ThemedText>
+              )}
 
-        <ThemedView style={styles.inputContainer}>
-          <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Mật khẩu"
-            placeholderTextColor="#A0A0A0"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-          >
-            <FontAwesome
-              name={showPassword ? "eye-slash" : "eye"}
-              size={20}
-              color="#A0A0A0"
-            />
-          </TouchableOpacity>
-        </ThemedView>
+              <ThemedView style={styles.inputContainer}>
+                <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Mật khẩu"
+                  placeholderTextColor="#A0A0A0"
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  editable={!isSubmitting}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                  disabled={isSubmitting}
+                >
+                  <FontAwesome
+                    name={showPassword ? "eye-slash" : "eye"}
+                    size={20}
+                    color="#A0A0A0"
+                  />
+                </TouchableOpacity>
+              </ThemedView>
+              {touched.password && errors.password && (
+                <ThemedText style={styles.errorText}>{errors.password}</ThemedText>
+              )}
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <ThemedText style={styles.loginButtonText}>Đăng Nhập</ThemedText>
-        </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.loginButton, isSubmitting && styles.loginButtonDisabled]}
+                onPress={() => handleSubmit()}
+                disabled={isSubmitting}
+              >
+                <ThemedText style={styles.loginButtonText}>
+                  {isSubmitting ? 'Đang đăng nhập...' : 'Đăng Nhập'}
+                </ThemedText>
+              </TouchableOpacity>
+            </>
+          )}
+        </Formik>
 
         <ThemedView style={styles.registerContainer}>
           <ThemedText style={styles.registerText}>Chưa có tài khoản? </ThemedText>
@@ -107,6 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
+    lineHeight: 32,
   },
   inputContainer: {
     width: '100%',
@@ -116,7 +179,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 8,
     height: 55,
   },
   inputIcon: {
@@ -130,19 +193,29 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 12,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+  },
   loginButton: {
     width: '100%',
     backgroundColor: '#007AFF',
     borderRadius: 10,
-    height: 55,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
     marginBottom: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+  },
+  loginButtonDisabled: {
+    backgroundColor: '#A0A0A0',
   },
   loginButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   registerContainer: {

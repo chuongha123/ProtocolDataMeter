@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 // Define the auth token key
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -30,22 +30,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const segments = useSegments();
-
-  // Check if the user is authenticated and redirect accordingly
-  useEffect(() => {
-    if (!isLoading) {
-      const inAuthGroup = segments[0] === '(auth)';
-      
-      if (!authToken && !inAuthGroup) {
-        // Redirect to login if not authenticated
-        router.replace('/login');
-      } else if (authToken && inAuthGroup) {
-        // Redirect to home if authenticated
-        router.replace('/(tabs)');
-      }
-    }
-  }, [authToken, segments, isLoading]);
 
   // Load the auth token from storage on mount
   useEffect(() => {
@@ -78,6 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Update state
       setAuthToken(token);
       setUser(userData);
+      
+      // Navigate to the main app (home page)
+      router.replace('/');
     } catch (error) {
       console.error('Failed to save auth token', error);
       throw error;
@@ -94,6 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Update state
       setAuthToken(null);
       setUser(null);
+      
+      // Navigate to login
+      router.replace('/login');
     } catch (error) {
       console.error('Failed to remove auth token', error);
       throw error;

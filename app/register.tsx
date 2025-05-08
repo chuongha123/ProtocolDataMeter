@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import { ThemedText } from '../components/ThemedText';
 import { ThemedView } from '../components/ThemedView';
 import { useAuth } from '../utils/authContext';
+import { authService } from '@/API/authService';
 
 // Định nghĩa schema validation
 const RegisterSchema = Yup.object().shape({
@@ -23,6 +24,8 @@ const RegisterSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Mật khẩu xác nhận không khớp')
     .required('Vui lòng xác nhận mật khẩu'),
+  fullName: Yup.string()
+    .required('Vui lòng nhập họ và tên'),
 });
 
 // Định nghĩa interface cho form values
@@ -31,12 +34,13 @@ interface RegisterFormValues {
   email: string;
   password: string;
   confirmPassword: string;
+  fullName: string;
 }
 
 export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   // Giá trị ban đầu
   const initialValues: RegisterFormValues = {
@@ -44,21 +48,22 @@ export default function RegisterScreen() {
     email: '',
     password: '',
     confirmPassword: '',
+    fullName: '',
   };
 
   // Xử lý đăng ký
   const handleRegister = async (values: RegisterFormValues, { setSubmitting }: any) => {
     try {
-      console.log('Register with:', { username: values.username, email: values.email, password: values.password });
-      
-      // Mô phỏng đăng ký thành công và tự động đăng nhập
-      const mockToken = 'mock-auth-token-123';
-      const mockUserData = { id: '1', username: values.username, email: values.email };
-      
+      const request = {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        fullName: values.fullName,
+      }
       // Store the auth token and user data
-      await login(mockToken, mockUserData);
-      
+      await register(request);
       // Navigation is handled in the login function of authContext
+      await login({ username: values.username, password: values.password });
     } catch (error) {
       Alert.alert('Lỗi', error instanceof Error ? error.message : 'Đăng ký thất bại');
     } finally {
@@ -136,6 +141,23 @@ export default function RegisterScreen() {
                 )}
 
                 <ThemedView style={styles.inputContainer}>
+                  <FontAwesome name="user" size={20} color="#007AFF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Họ và tên"
+                    placeholderTextColor="#A0A0A0"
+                    value={values.fullName}
+                    onChangeText={handleChange('fullName')}
+                    onBlur={handleBlur('fullName')}
+                    autoCapitalize="none"
+                    editable={!isSubmitting}
+                  />
+                </ThemedView>
+                {touched.fullName && errors.fullName && (
+                  <ThemedText style={styles.errorText}>{errors.fullName}</ThemedText>
+                )}
+
+                <ThemedView style={styles.inputContainer}>
                   <FontAwesome name="lock" size={20} color="#007AFF" style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
@@ -193,7 +215,7 @@ export default function RegisterScreen() {
                   <ThemedText style={styles.errorText}>{errors.confirmPassword}</ThemedText>
                 )}
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.registerButton, isSubmitting && styles.registerButtonDisabled]}
                   onPress={() => handleSubmit()}
                   disabled={isSubmitting}

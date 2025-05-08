@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import { authService } from "@/API/authService";
 import { UserProfile } from "@/API/types/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 // Define the auth token key
 const AUTH_TOKEN_KEY = "auth_token";
@@ -15,15 +15,17 @@ type AuthContextType = {
   login: (request: any) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
+  register: (request: any) => Promise<void>;
 };
 
 // Create the context with a default value
 const AuthContext = createContext<AuthContextType>({
   authToken: null,
   user: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   isLoading: true,
+  register: async () => { },
 });
 
 // Create a provider component
@@ -62,37 +64,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthToken(response.token);
 
       const userProfile = await authService.getUserProfile();
-      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userProfile));     
+      await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userProfile));
       setUser(userProfile);
-      
-      // Navigate to the main app (home page)
+
+      // Navigate to the main app last after state is updated
       router.replace("/");
     } catch (error) {
       console.error("Failed to save auth token", error);
       throw error;
     }
-  }, [router]);
+  }, []);
 
   // Logout function
   const logout = useCallback(async () => {
     try {
-      // First, navigate to login
-      router.replace("/login");
-      
-      // Then clear the storage
+      // First clear the storage and state
       await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
       await AsyncStorage.removeItem(USER_DATA_KEY);
       
-      // Update state last
+      // Update state before navigation
       setUser(null);
       setAuthToken(null);
+      
+      // Navigate to login last
+      router.replace("/login");
     } catch (error) {
       console.error("Failed to remove auth token", error);
       throw error;
     }
-  }, [router]);
+  }, []);
 
-  const value = useMemo(() => ({ authToken, user, login, logout, isLoading }), [authToken, user, login, logout, isLoading]);
+  const register = useCallback(async (request: any) => {
+    try {
+      await authService.register(request);
+    } catch (error) {
+      console.error("Failed to register", error);
+      throw error;
+    }
+  }, []);
+
+
+  const value = useMemo(
+    () => ({ authToken, user, login, logout, isLoading, register }),
+    [authToken, user, login, logout, isLoading, register]
+  );
 
   return (
     <AuthContext.Provider value={value}>

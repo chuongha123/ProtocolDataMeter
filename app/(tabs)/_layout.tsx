@@ -40,7 +40,7 @@ export default function TabLayout() {
         headerLeft: () => <DrawerMenu />,
       }}>
       <Tabs.Screen
-        name="index"
+        name="(tabs)"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,

@@ -24,8 +24,8 @@ const database = getDatabase(app);
 // Log Firebase initialization
 console.log("🔥 Firebase đã khởi tạo:", app.name);
 
-export const CLOCK1 = "dongho/dongho_1";
-export const CLOCK2 = "dongho/dongho_2";
+export const CLOCK1 = "messages/D1";
+export const CLOCK2 = "messages/D2";
 
 export const readData = async (path: string) => {
   try {

@@ -19,6 +19,7 @@ export default function HomeScreen() {
 
   const fetchWaterMeters = useCallback(async () => {
     try {
+      console.log("A")
       setLoading(true);
       // Clear existing Firebase listeners before fetching new data
       unsubscribe.current.forEach(unsub => unsub());

@@ -39,7 +39,7 @@ export default function WaterMeterDetailScreen() {
           unsubscribe.current = onValueChange(meter.firebasePath, (data) => {
             setWaterMeter(prev => {
               if (prev) {
-                prev = { ...prev, cubicMeters: data?.value ?? 0 };
+                prev = { ...prev, cubicMeters: data ?? 0 };
               }
               return prev;
             })

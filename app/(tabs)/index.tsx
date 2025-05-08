@@ -33,7 +33,7 @@ export default function HomeScreen() {
         if (meter.firebasePath) {
           unsubscribe.current.push(onValueChange(meter.firebasePath, (data) => {
             setWaterMeters(prev =>
-              prev.map(m => m.id === meter.id ? { ...m, cubicMeters: data?.value ?? 0 } : m)
+              prev.map(m => m.id === meter.id ? { ...m, cubicMeters: data ?? 0 } : m)
             );
           }));
         }

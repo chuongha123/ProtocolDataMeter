@@ -1,25 +1,22 @@
 import 'react-native-reanimated';
 
-import {CustomDrawerContent} from '@/components/CustomDrawerContent';
-import {HamburgerButton} from '@/components/HamburgerButton';
-import {RouteNames} from '@/constants/RouteNames';
-import {useColorScheme} from '@/hooks/useColorScheme';
-import {createDrawerNavigator, DrawerNavigationProp} from '@react-navigation/drawer';
-import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
-import {useFonts} from 'expo-font';
-import {Slot, Stack} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import {StatusBar} from 'expo-status-bar';
-import {useCallback, useEffect} from 'react';
-import {Button, Text, TextStyle, View, ViewStyle} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import AddWaterMeterScreen from './add-water-meter';
 import WaterMeterDetailScreen from "@/app/water-meter-detail";
 import EditWaterMeterScreen from "@/app/water-meter-edit";
-import LoginScreen from './login';
-import RegisterScreen from './register';
+import { CustomDrawerContent } from '@/components/CustomDrawerContent';
+import { HamburgerButton } from '@/components/HamburgerButton';
+import { RouteNames } from '@/constants/RouteNames';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {AuthProvider} from '../utils/authContext';
+import { createDrawerNavigator, DrawerNavigationProp } from '@react-navigation/drawer';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Slot } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect } from 'react';
+import { Button, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AddWaterMeterScreen from './add-water-meter';
 
 export type DrawerParamList = {
   "(tabs)": undefined;
@@ -70,7 +67,7 @@ function RootLayoutNav() {
   ), []);
 
   const renderHeaderLeft = useCallback((navigation: DrawerNavigationProp<any>) => (
-    <HamburgerButton onPress={() => navigation.toggleDrawer()}/>
+    <HamburgerButton onPress={() => navigation.toggleDrawer()} />
   ), []);
 
   const renderHeaderRight = useCallback((navigation: DrawerNavigationProp<any>) => {
@@ -81,7 +78,7 @@ function RootLayoutNav() {
     }
     return (
       <View style={$headerRight}>
-        <Button title="Add" onPress={() => navigation.navigate(RouteNames.addWaterMeter)}/>
+        <Button title="Add" onPress={() => navigation.navigate(RouteNames.addWaterMeter)} />
       </View>
     );
   }, []);
@@ -91,48 +88,46 @@ function RootLayoutNav() {
   ), []);
 
   return (
-    <AuthProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <SafeAreaProvider>
-          <StatusBar style={colorScheme === "dark" ? "light" : "dark"}/>
-          <Drawer.Navigator
-            initialRouteName="(tabs)"
-            screenOptions={({navigation}) => ({
-              headerLeft: () => renderHeaderLeft(navigation),
-              headerRight: () => renderHeaderRight(navigation),
-              drawerStyle: {
-                width: '70%',
-              },
-              headerShown: true,
-              headerTitle: renderHeaderTitle,
-            })}
-            drawerContent={renderDrawerContent}
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <SafeAreaProvider>
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        <Drawer.Navigator
+          initialRouteName="(tabs)"
+          screenOptions={({ navigation }) => ({
+            headerLeft: () => renderHeaderLeft(navigation),
+            headerRight: () => renderHeaderRight(navigation),
+            drawerStyle: {
+              width: '70%',
+            },
+            headerShown: true,
+            headerTitle: renderHeaderTitle,
+          })}
+          drawerContent={renderDrawerContent}
+        >
+          <Drawer.Screen
+            name="(tabs)"
+            component={Slot}
           >
-            <Drawer.Screen
-              name="(tabs)"
-              component={Slot}
-            >
-            </Drawer.Screen>
+          </Drawer.Screen>
 
-            <Drawer.Screen
-              name={"add-water-meter"}
-              component={AddWaterMeterScreen}
-            >
-            </Drawer.Screen>
+          <Drawer.Screen
+            name={"add-water-meter"}
+            component={AddWaterMeterScreen}
+          >
+          </Drawer.Screen>
 
-            <Drawer.Screen
-              name={"water-meter-detail"}
-              component={WaterMeterDetailScreen}>
-            </Drawer.Screen>
+          <Drawer.Screen
+            name={"water-meter-detail"}
+            component={WaterMeterDetailScreen}>
+          </Drawer.Screen>
 
-            <Drawer.Screen
-              name={"water-meter-edit"}
-              component={EditWaterMeterScreen}>
-            </Drawer.Screen>
-          </Drawer.Navigator>
-        </SafeAreaProvider>
-      </ThemeProvider>
-    </AuthProvider>
+          <Drawer.Screen
+            name={"water-meter-edit"}
+            component={EditWaterMeterScreen}>
+          </Drawer.Screen>
+        </Drawer.Navigator>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
 

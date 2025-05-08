@@ -19,7 +19,6 @@ export default function HomeScreen() {
 
   const fetchWaterMeters = useCallback(async () => {
     try {
-      console.log("A")
       setLoading(true);
       // Clear existing Firebase listeners before fetching new data
       unsubscribe.current.forEach(unsub => unsub());
@@ -50,7 +49,7 @@ export default function HomeScreen() {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchWaterMeters();
-  }, [fetchWaterMeters]);
+  }, []);
 
   const handleMeterPress = (meter: WaterMeter) => {
     navigation.navigate("water-meter-detail", { meterId: meter.id });

@@ -3,12 +3,11 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
+import { DrawerMenu } from '@/components/DrawerMenu';
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { DrawerMenu } from '@/components/DrawerMenu';
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -40,7 +39,7 @@ export default function TabLayout() {
         headerLeft: () => <DrawerMenu />,
       }}>
       <Tabs.Screen
-        name="(tabs)"
+        name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
@@ -51,13 +50,6 @@ export default function TabLayout() {
         options={{
           title: 'Đồng hồ nước',
           tabBarIcon: ({ color }) => <TabBarIcon name="tint" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Tài khoản',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </Tabs>

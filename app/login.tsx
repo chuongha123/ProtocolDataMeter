@@ -46,15 +46,13 @@ export default function LoginScreen() {
     { setSubmitting }: any
   ) => {
     try {
-      const mockToken = "mock-auth-token-123";
-      const mockUserData = {
-        id: "1",
+      const request = {
         username: values.username,
-        email: "user@example.com",
+        password: values.password,
       };
 
       // Store the auth token and user data
-      await login(mockToken, mockUserData);
+      await login(request);
 
       // Navigation is handled in the login function of authContext
     } catch (error) {

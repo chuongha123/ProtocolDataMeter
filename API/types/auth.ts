@@ -18,3 +18,11 @@ export interface RegisterResponse {
   token: string;
   refreshToken: string;
 }
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+}
